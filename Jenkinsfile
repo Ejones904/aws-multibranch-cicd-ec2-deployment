@@ -2,8 +2,7 @@
 
 library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
     [$class: 'GitSCMSource',
-     remote: 'https://github.com/Ejones904/jenkins-shared-library.git',
-     credentialsId: 'Jenkins-Github'
+     remote: 'https://github.com/Ejones904/jenkins-shared-library.git'
     ]
 )
 
@@ -61,8 +60,8 @@ pipeline {
                 script {
                     echo 'Deploying Docker image to AWS EC2...'
 
-                    def shellCmd = "bash /home/ec2-user/server-cmds.sh ${env.IMAGE_NAME}"
                     def ec2Instance = "ec2-user@3.16.99.36"
+                    def shellCmd = "bash /home/ec2-user/server-cmds.sh ${env.IMAGE_NAME}"
 
                     sshagent(credentials: ['EC2-server-key']) {
 
@@ -73,43 +72,10 @@ pipeline {
                         """
 
                         sh """
-                            scp -o StrictHostKeyChecking=no \
-                            docker-compose.yaml \
-                            ${ec2Instance}:/home/ec2-user/docker-compose.yaml
-                        """
-
-                        sh """
                             ssh -o StrictHostKeyChecking=no \
                             ${ec2Instance} \
                             '${shellCmd}'
                         """
-                    }
-                }
-            }
-        }
-
-        stage('commit version update') {
-            steps {
-                script {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'Jenkins-Github',
-                            usernameVariable: 'GITHUB_USER',
-                            passwordVariable: 'GITHUB_TOKEN'
-                        )
-                    ]) {
-
-                        sh '''
-                            git config user.name "Jenkins"
-                            git config user.email "jenkins@local"
-
-                            git add pom.xml
-                            git commit -m "ci: version bump [skip ci]" || echo "No version change to commit"
-
-                            git remote set-url origin https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/Ejones904/aws-multibranch-cicd-ec2-deployment.git
-
-                            git push origin HEAD:${BRANCH_NAME}
-                        '''
                     }
                 }
             }

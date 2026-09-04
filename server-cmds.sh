@@ -2,8 +2,19 @@
 
 set -e
 
-export IMAGE=$1
+IMAGE=$1
 
-docker compose -f /home/ec2-user/docker-compose.yaml up --detach
+echo "Deploying image: $IMAGE"
+
+docker pull "$IMAGE"
+
+docker rm -f java-maven-app 2>/dev/null || true
+
+docker run -d \
+    --name java-maven-app \
+    -p 3000:8080 \
+    "$IMAGE"
 
 echo "Deployment successful"
+
+docker ps
