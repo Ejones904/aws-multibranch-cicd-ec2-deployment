@@ -3,7 +3,7 @@
 library identifier: 'jenkins-shared-library@main', retriever: modernSCM(
     [$class: 'GitSCMSource',
      remote: 'https://github.com/Ejones904/jenkins-shared-library.git',
-     credentialsId: 'github-credentials'
+     credentialsId: 'Jenkins-Github'
     ]
 )
 
@@ -93,7 +93,7 @@ pipeline {
                 script {
                     withCredentials([
                         usernamePassword(
-                            credentialsId: 'github-credentials',
+                            credentialsId: 'Jenkins-Github',
                             usernameVariable: 'GITHUB_USER',
                             passwordVariable: 'GITHUB_TOKEN'
                         )
