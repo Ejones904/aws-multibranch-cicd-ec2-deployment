@@ -64,7 +64,7 @@ pipeline {
                     def shellCmd = "bash /home/ec2-user/server-cmds.sh ${env.IMAGE_NAME}"
 
                     sshagent(credentials: ['EC2-server-key']) {
-
+                        sh "scp docker-compose.yaml ${ec2Instance}:/home/ec2-user"
                         sh """
                             scp -o StrictHostKeyChecking=no \
                             server-cmds.sh \
