@@ -80,5 +80,36 @@ pipeline {
                 }
             }
         }
+
+        stage('commit version update') {
+            steps {
+                script {
+
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'Jenkins-Github',
+                            usernameVariable: 'GITHUB_USER',
+                            passwordVariable: 'GITHUB_TOKEN'
+                        )
+                    ]) {
+
+                        sh '''
+                            git config user.name "Jenkins"
+                            git config user.email "jenkins@local"
+
+                            git add pom.xml
+
+                            git commit -m "ci: version bump [skip ci]" || \
+                            echo "No version change to commit"
+
+                            git remote set-url origin \
+                            https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/Ejones904/aws-multibranch-cicd-ec2-deployment.git
+
+                            git push origin HEAD:${BRANCH_NAME}
+                        '''
+                    }
+                }
+            }
+        }
     }
 }
